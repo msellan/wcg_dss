@@ -99,9 +99,7 @@ while read -r line; do
         i=0
     fi
 
-
 done < "${INPUT_FILE}"
-#done < devicestats.html
 
 }
 
