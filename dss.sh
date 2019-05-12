@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-set -euo pipefail
+#set -euo pipefail
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+ World Community Grid Data Processing Script
@@ -67,6 +67,23 @@ INPUT_FILE="${DATA_DIR}/devicestats.html"
 #
 #------------------------------------------------------------------------------- 
 
+preprocess_html () {
+
+ex "${INPUT_FILE}" <<EOF
+        g/Points<br>Generated/1,.-1d
+        1d5
+        g/height="40"/d
+        g/images/d
+        g/tr/d
+        g/middleColumnCloser/.+1,\$d
+        g/table/d
+        g/form/d
+        g/middleColumnCloser/d
+        wq!
+EOF
+}
+
+
 get_data () {
 
 i=0
@@ -105,4 +122,5 @@ done < "${INPUT_FILE}"
 
 #Main
 
+preprocess_html
 get_data
