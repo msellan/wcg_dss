@@ -60,10 +60,10 @@ DATA_DIR=~/Downloads
 OUTPUT_FILE="${DATA_DIR}/device_stats.dat"
 INPUT_FILE="${DATA_DIR}/devicestats.html"
 
-#----------> Process page data <-------------------------------------------
+#----------> Preprocess html <--------------------------------------------------
 #
-#  Read the HTML file line by line and use a series of regex matches to 
-#  extract the relevant table data.
+#  Use an 'ex' editor heredoc to strip out as much unneccesary html as possible 
+#  to make it unlikely to get an unexpected match on a non-data point.
 #
 #------------------------------------------------------------------------------- 
 
@@ -83,6 +83,12 @@ ex "${INPUT_FILE}" <<EOF
 EOF
 }
 
+#----------> Process page data <-------------------------------------------
+#
+#  Read the HTML file line by line and use a series of regex matches to 
+#  extract the relevant table data.
+#
+#------------------------------------------------------------------------------- 
 
 get_data () {
 
