@@ -9,13 +9,18 @@
 #+ Community Grid "Device Statistics History" page that's not provided in their
 #+ API.  The script isolates the table of data and then uses a series of regular
 #+ expressions to match the data in the table and outputs a pipe | seperated
-#+ file. 
+#+ file since the data contains too many other commonly used delimiters. 
 #+ 
-#+ Screen scraping is a last resort method and is likely to be fragile. There
-#+ is no automatic login routine so at the moment this script can only be used
-#+ by manually logging in to the WCG site and saving the HTML output of the 
-#+ statistics page. This script also uses a newer version of Bash than is 
-#+ installed on MacOS.  It uses Bash v 5.0
+#+ Screen scraping is a last resort method and is likely to be fragile. The 
+#+ script uses a utility, 'wget' to retrieve the WCG security_check page and 
+#+ associated session cookies and posts that data along with a WCG UserID
+#+ and Password.  Those values are stored in seperate file and then sourced.
+#+ 
+#+ For robust regular expression matching, this script also uses a newer version
+#+ of Bash than is installed on MacOS by default. It uses Bash v 5.0 which on 
+#+ MacOS can be installed using Homebrew.
+#+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+
 #+ By Mark Sellan
 #+
@@ -45,6 +50,7 @@
 #  Change History
 #
 #  05-11-19 - Initial commit 
+#  05-15-19 - Added authentication functionality
 #	     
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -66,8 +72,10 @@ DEVICE_URL=https://www.worldcommunitygrid.org/ms/device/viewStatisticsByDevice.d
 
 #----------> Login to WCG <--------------------------------------------------
 #
-#  Login to the WCG using wget to create a session for use in a subsequent
-#  request.
+#  Login to the WCG using wget to create a session for use in subsequent
+#  requests. This information was found in the WCG forums.  Post/thread:
+#  https://www.worldcommunitygrid.org/forums/wcg/ \
+#          viewthread_thread,40823_offset,20#582183
 #
 #------------------------------------------------------------------------------- 
 
@@ -78,21 +86,26 @@ wget --save-cookies "${COOKIE_JAR}" \
      --post-data 'j_username='"${wcg_userid}"'&j_password='"${wcg_password}" \
      --delete-after \
      "${WCG_SECURITY_URL}"
-
 }
 
+#----------> Get device history page  <-----------------------------------------
+#
+#  Once the user is logged in, we can make another wget request to download the
+#  Device History page to pull data from.
+#
+#-------------------------------------------------------------------------------
 
 get_device_history () {
 
-wget --load-cookies "${COOKIE_JAR}" \
-     "${DEVICE_URL}" 
+wget -qO ~/Downloads/devicestats.html --load-cookies "${COOKIE_JAR}" \
+     "${DEVICE_URL}"
 }
 
 
 #----------> Preprocess html <--------------------------------------------------
 #
 #  Use an 'ex' editor heredoc to strip out as much unneccesary html as possible 
-#  to make it unlikely to get an unexpected match on a non-data point.
+#  to make it unlikely to get an unexpected match on a non-datapoint.
 #
 #------------------------------------------------------------------------------- 
 
@@ -119,7 +132,7 @@ EOF
 #
 #------------------------------------------------------------------------------- 
 
-get_data () {
+process_page () {
 
 i=0
 while read -r line; do
@@ -129,7 +142,7 @@ while read -r line; do
         if [[ "${line}" =~ [0-9]{7} ]]; then
             printf "${BASH_REMATCH[0]}|" >> "${OUTPUT_FILE}"
         fi
-    #insert test for device name here
+    #future work - insert test for device name here
     
     elif [[ "${line}" =~ [0-9]{2}\/[0-9]{2}\/[0-9]{4}' '([0-9]{1,3}:)([0-9]{1,3}:)([0-9]{2}) ]] && [[ $i -eq 2 ]]; then
             printf "${BASH_REMATCH[0]}|" >> "${OUTPUT_FILE}"
@@ -157,8 +170,8 @@ done < "${INPUT_FILE}"
 
 #Main
 
+wcg_login
+get_device_history
 preprocess_html
-get_data
-#wcg_login
-#get_device_history
+process_page
 
