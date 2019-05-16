@@ -54,11 +54,40 @@
 #
 #-------------------------------------------------------------------------------
 
+source dss_env.sh
+
 PATH="${PATH}":~/Downloads:/usr/bin:/usr/local/bin
 SCRIPT=$(basename $0)
 DATA_DIR=~/Downloads
 OUTPUT_FILE="${DATA_DIR}/device_stats.dat"
 INPUT_FILE="${DATA_DIR}/devicestats.html"
+WCG_SECURITY_URL=https://www.worldcommunitygrid.org/j_security_check
+DEVICE_URL=https://www.worldcommunitygrid.org/ms/device/viewStatisticsByDevice.do?installedSince=0\&lastResult=0
+
+#----------> Login to WCG <--------------------------------------------------
+#
+#  Login to the WCG using wget to create a session for use in a subsequent
+#  request.
+#
+#------------------------------------------------------------------------------- 
+
+wcg_login () {
+
+wget --save-cookies "${COOKIE_JAR}" \
+     --keep-session-cookies \
+     --post-data 'j_username='"${wcg_userid}"'&j_password='"${wcg_password}" \
+     --delete-after \
+     "${WCG_SECURITY_URL}"
+
+}
+
+
+get_device_history () {
+
+wget --load-cookies "${COOKIE_JAR}" \
+     "${DEVICE_URL}" 
+}
+
 
 #----------> Preprocess html <--------------------------------------------------
 #
@@ -130,3 +159,6 @@ done < "${INPUT_FILE}"
 
 preprocess_html
 get_data
+#wcg_login
+#get_device_history
+
