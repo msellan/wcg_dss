@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-#set -euo pipefail
+set -euo pipefail
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+ World Community Grid Data Processing Script
