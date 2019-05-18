@@ -194,4 +194,4 @@ wcg_login
 get_device_history
 preprocess_html
 process_page
-
+archive_results
