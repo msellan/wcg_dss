@@ -52,6 +52,7 @@ set -euo pipefail
 #  05-11-19 - Initial commit 
 #  05-15-19 - Added authentication functionality
 #  05-17-19 - Added data archiving functionality
+#  05-21-19 - Cleaned up variable initialization and hard-coded paths
 #	     
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -64,10 +65,10 @@ set -euo pipefail
 source dss_env.sh
 
 PATH="${PATH}":~/Downloads:/usr/bin:/usr/local/bin
-SCRIPT=$(basename $0)
 DATA_DIR=~/Downloads
 OUTPUT_FILE="${DATA_DIR}/device_stats.dat"
 INPUT_FILE="${DATA_DIR}/devicestats.html"
+COOKIE_JAR=cookies.txt
 WCG_SECURITY_URL=https://www.worldcommunitygrid.org/j_security_check
 DEVICE_URL=https://www.worldcommunitygrid.org/ms/device/viewStatisticsByDevice.do?installedSince=0\&lastResult=0
 
@@ -98,7 +99,6 @@ wget --save-cookies "${COOKIE_JAR}" \
 
 get_device_history () {
 
-#wget -qO ~/Downloads/devicestats.html --load-cookies "${COOKIE_JAR}" \
 wget -qO "${INPUT_FILE}" --load-cookies "${COOKIE_JAR}" \
      "${DEVICE_URL}"
 }
