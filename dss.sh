@@ -98,7 +98,8 @@ wget --save-cookies "${COOKIE_JAR}" \
 
 get_device_history () {
 
-wget -qO ~/Downloads/devicestats.html --load-cookies "${COOKIE_JAR}" \
+#wget -qO ~/Downloads/devicestats.html --load-cookies "${COOKIE_JAR}" \
+wget -qO "${INPUT_FILE}" --load-cookies "${COOKIE_JAR}" \
      "${DEVICE_URL}"
 }
 
